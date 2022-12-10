@@ -57,7 +57,7 @@ public class StableMemoryAccountDAO implements AccountDAO {
 
     @Override
     public Account getAccount(String accountNo) throws InvalidAccountException {
-        SQLiteDatabase DB = this.databaseHelper.getWritableDatabase();
+        SQLiteDatabase DB = databaseHelper.getWritableDatabase();
         Cursor cursor = DB.rawQuery("SELECT * FROM UserDetails WHERE account_no=?", new String[]{accountNo}, null);
         Account account = null;
         if (cursor.moveToFirst()) {
