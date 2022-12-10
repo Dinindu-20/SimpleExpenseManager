@@ -15,7 +15,7 @@ import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.model.ExpenseType;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.database.DatabaseHelper;
 
 
-public class StableMemoryAccountDAO implements AccountDAO {
+public class StableMemoryAccountDAO implements AccountDAO{
 
     private DatabaseHelper databaseHelper;
 
