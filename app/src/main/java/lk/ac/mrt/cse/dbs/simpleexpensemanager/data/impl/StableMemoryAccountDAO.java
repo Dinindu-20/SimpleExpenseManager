@@ -102,13 +102,13 @@ public class StableMemoryAccountDAO implements AccountDAO {
         Cursor cursor;
         cursor = DB.rawQuery("SELECT balance from Userdetails WHERE account_no= ?", new String[]{accountNo},null);
         String Initial=cursor.getString(cursor.getColumnIndex("balance"));
-        double value = Double.parseDouble(Initial);
-        if (expenseType==ExpenseType.EXPENSE && amount >= value ){
-            contentValues.put("balance",amount-value);
+        double values = Double.parseDouble(Initial);
+        if (expenseType==ExpenseType.EXPENSE && amount >= values ){
+            contentValues.put("balance",amount-values);
 
         }
         else{
-            contentValues.put("balance",amount+value);
+            contentValues.put("balance",amount+values);
         }
 
         DB.insert("Userdetails",null,contentValues);
