@@ -14,7 +14,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase DB) {
         DB.execSQL("create Table Userdetails(account_no TEXT primary key, bank TEXT, name TEXT, balance REAL)");
-        DB.execSQL("create Table Transactiondetails(account_no TEXT primary key,expencetype, amount REAL)");
+        DB.execSQL("create Table Transactiondetails(account_no TEXT primary key,date TEXT,expensetype TEXT,amount REAL)");
 
     }
 
