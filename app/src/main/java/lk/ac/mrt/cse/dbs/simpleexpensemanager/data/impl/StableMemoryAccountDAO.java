@@ -6,6 +6,7 @@ import android.database.CursorWrapper;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.AccountDAO;
@@ -16,21 +17,22 @@ import lk.ac.mrt.cse.dbs.simpleexpensemanager.database.DatabaseHelper;
 
 
 public class StableMemoryAccountDAO implements AccountDAO{
-
     private DatabaseHelper databaseHelper;
 
-   public void setDatabaseHelper(DatabaseHelper databaseHelper) {
-       this.databaseHelper = databaseHelper;
-   }
+    public StableMemoryAccountDAO(DatabaseHelper databaseHelper) {
+        this.databaseHelper = databaseHelper;
+    }
+
     @Override
     public List<String> getAccountNumbersList() {
-        List<String> accnumber = null;
+        List<String> accnumber = new ArrayList<>();
         SQLiteDatabase DB = databaseHelper.getWritableDatabase();
         Cursor cursor = DB.rawQuery("SELECT account_no FROM UserDetails ",null);
-        if(cursor.moveToFirst()){
+        if(cursor!=null && cursor.moveToFirst()  ){
             do {
                 accnumber.add(cursor.getString(cursor.getColumnIndex("account_no")));
             }while(cursor.moveToNext());
+            cursor.close();
             
         }
         return accnumber;
@@ -38,10 +40,10 @@ public class StableMemoryAccountDAO implements AccountDAO{
 
     @Override
     public List<Account> getAccountsList() {
-        List<Account> accounts=null;
+        List<Account> accounts=new ArrayList<>();
         SQLiteDatabase DB = databaseHelper.getWritableDatabase();
         Cursor cursor = DB.rawQuery("SELECT * FROM UserDetails ",null);
-        if(cursor.moveToFirst()){
+        if(cursor!=null && cursor.moveToFirst()){
             do {
                 String acc_no = cursor.getString(cursor.getColumnIndex("account_no"));
                 String bank = cursor.getString(cursor.getColumnIndex("bank"));
@@ -50,6 +52,7 @@ public class StableMemoryAccountDAO implements AccountDAO{
                 Account account = new Account(acc_no,bank,name,balance);
                 accounts.add(account);
             }while(cursor.moveToNext());
+            cursor.close();
 
         }
         return accounts;
@@ -60,7 +63,7 @@ public class StableMemoryAccountDAO implements AccountDAO{
         SQLiteDatabase DB = databaseHelper.getWritableDatabase();
         Cursor cursor = DB.rawQuery("SELECT * FROM UserDetails WHERE account_no=?", new String[]{accountNo}, null);
         Account account = null;
-        if (cursor.moveToFirst()) {
+        if ( cursor != null && cursor.moveToFirst()) {
             do {
                 String acc_no = cursor.getString(cursor.getColumnIndex("account_no"));
                 String bank = cursor.getString(cursor.getColumnIndex("bank"));
@@ -69,8 +72,10 @@ public class StableMemoryAccountDAO implements AccountDAO{
                 account = new Account(acc_no, bank, name, balance);
 
             } while (cursor.moveToNext());
+            cursor.close();
 
         }
+
         return account;
 
     }
@@ -93,6 +98,7 @@ public class StableMemoryAccountDAO implements AccountDAO{
         if (cursor.getCount() >0){
             long result = DB.delete("Userdetails","account_no=?",new String[]{accountNo});
         }
+        cursor.close();
     }
 
     @Override
@@ -100,18 +106,23 @@ public class StableMemoryAccountDAO implements AccountDAO{
         SQLiteDatabase DB = this.databaseHelper.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         Cursor cursor;
-        cursor = DB.rawQuery("SELECT balance from Userdetails WHERE account_no= ?", new String[]{accountNo},null);
-        String Initial=cursor.getString(cursor.getColumnIndex("balance"));
-        double values = Double.parseDouble(Initial);
-        if (expenseType==ExpenseType.EXPENSE && amount >= values ){
-            contentValues.put("balance",amount-values);
+        cursor = DB.rawQuery("SELECT * FROM Userdetails WHERE account_no= ?", new String[]{accountNo},null);
+        if (cursor != null && cursor.moveToFirst()){
+            String Initial= cursor.getString(cursor.getColumnIndex("balance"));
+            double values = Double.parseDouble(Initial);
+            if (expenseType == ExpenseType.EXPENSE && amount >= values ){
+                contentValues.put("balance",amount-values);
 
-        }
-        else{
-            contentValues.put("balance",amount+values);
+            }
+            else{
+                contentValues.put("balance",amount+values);
+            }
+            cursor.close();
+
+            DB.insert("Userdetails",null,contentValues);
         }
 
-        DB.insert("Userdetails",null,contentValues);
+
 
 
     }

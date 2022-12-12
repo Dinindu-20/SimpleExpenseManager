@@ -6,6 +6,7 @@ import android.database.sqlite.SQLiteDatabase;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -18,8 +19,8 @@ public class StableTransactionAccountDAO implements TransactionDAO {
     private DatabaseHelper databaseHelper;
 
 
-    public StableTransactionAccountDAO() {
-        DatabaseHelper databaseHelper;
+    public StableTransactionAccountDAO(DatabaseHelper databaseHelper) {
+        this.databaseHelper= databaseHelper;
     }
 
     @Override
@@ -36,10 +37,10 @@ public class StableTransactionAccountDAO implements TransactionDAO {
 
     @Override
     public List<Transaction> getAllTransactionLogs() throws ParseException {
-        List<Transaction> transactionList=null;
+        List<Transaction> transactionList=new ArrayList<>();
         SQLiteDatabase DB = databaseHelper.getWritableDatabase();
         Cursor cursor=DB.rawQuery("SELECT * FROM Tansactiondetails",null);
-        if(cursor.moveToFirst()){
+        if(cursor != null && cursor.moveToFirst()){
             do {
                 String acc_no = cursor.getString(cursor.getColumnIndex("account_no"));
                 String date = cursor.getString(cursor.getColumnIndex("date"));
@@ -52,8 +53,10 @@ public class StableTransactionAccountDAO implements TransactionDAO {
                 transactionList.add(transaction);
 
             }while(cursor.moveToNext());
+            cursor.close();
 
         }
+
 
         return transactionList;
 
@@ -62,16 +65,16 @@ public class StableTransactionAccountDAO implements TransactionDAO {
 
     @Override
     public List<Transaction> getPaginatedTransactionLogs(int limit) throws ParseException {
-        List<Transaction> transactionList=null;
+        List<Transaction> transactionList=new ArrayList<>();
         SQLiteDatabase DB = databaseHelper.getWritableDatabase();
-        Cursor cursor=DB.rawQuery("SELECT * FROM Tansactiondetails ORDER BY date DESC",null);
-        if(cursor.moveToFirst() && limit>0){
+        Cursor cursor=DB.rawQuery("SELECT * FROM Transactiondetails ORDER BY date DESC",null);
+        if(cursor != null && cursor.moveToFirst() && limit>0 ){
             do {
                 String acc_no = cursor.getString(cursor.getColumnIndex("account_no"));
                 String date = cursor.getString(cursor.getColumnIndex("date"));
                 String expensetype = cursor.getString(cursor.getColumnIndex("expensetype"));
                 double amount = Double.parseDouble(cursor.getString(cursor.getColumnIndex("amount")));
-                Date date1=new SimpleDateFormat("dd/MM/yyyy").parse(date);
+                Date date1=new SimpleDateFormat("dd-MM-yyyy").parse(date);
                 ExpenseType expenseType;
                 expenseType = ExpenseType.valueOf(expensetype);
                 Transaction transaction= new Transaction(date1,acc_no,expenseType,amount);
@@ -79,8 +82,10 @@ public class StableTransactionAccountDAO implements TransactionDAO {
                 limit -= 1;
 
             }while(cursor.moveToNext());
+            cursor.close();
 
         }
+
         return transactionList;
 
     }

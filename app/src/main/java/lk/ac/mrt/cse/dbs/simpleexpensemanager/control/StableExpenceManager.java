@@ -8,14 +8,20 @@ import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.impl.StableTransactionAccount
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.database.DatabaseHelper;
 
 public class StableExpenceManager extends ExpenseManager {
+    private DatabaseHelper databaseHelper;
+
+    public StableExpenceManager(DatabaseHelper databaseHelper) {
+        this.databaseHelper = databaseHelper;
+        setup();
+    }
 
 
     @Override
-    public void setup() throws ExpenseManagerException {
-        TransactionDAO stableTransactionDAO = new StableTransactionAccountDAO();
+    public void setup() {
+        TransactionDAO stableTransactionDAO = new StableTransactionAccountDAO(databaseHelper);
         setTransactionsDAO(stableTransactionDAO);
 
-        AccountDAO stableAccountDAO = new StableMemoryAccountDAO();
+        AccountDAO stableAccountDAO = new StableMemoryAccountDAO(databaseHelper);
         setAccountsDAO(stableAccountDAO);
     }
 }
