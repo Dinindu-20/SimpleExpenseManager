@@ -25,10 +25,11 @@ public class StableTransactionAccountDAO implements TransactionDAO {
 
     @Override
     public void logTransaction(Date date, String accountNo, ExpenseType expenseType, double amount) {
+
         SQLiteDatabase DB = databaseHelper.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put("account_no", accountNo);
-        contentValues.put("date", String.valueOf(date));
+        contentValues.put("date", String.valueOf(date.getTime()));
         contentValues.put("expensetype",String.valueOf(expenseType));
         contentValues.put("amount",amount);
         long result = DB.insert("Transactiondetails",null,contentValues);
@@ -46,7 +47,7 @@ public class StableTransactionAccountDAO implements TransactionDAO {
                 String date = cursor.getString(cursor.getColumnIndex("date"));
                 String expensetype = cursor.getString(cursor.getColumnIndex("expensetype"));
                 double amount = Double.parseDouble(cursor.getString(cursor.getColumnIndex("amount")));
-                Date date1=new SimpleDateFormat("dd-MM-yyyy").parse(date);
+                Date date1=new Date(Long.valueOf(date));
                 ExpenseType expenseType;
                 expenseType = ExpenseType.valueOf(expensetype);
                 Transaction transaction= new Transaction(date1,acc_no,expenseType,amount);
@@ -68,20 +69,20 @@ public class StableTransactionAccountDAO implements TransactionDAO {
         List<Transaction> transactionList=new ArrayList<>();
         SQLiteDatabase DB = databaseHelper.getWritableDatabase();
         Cursor cursor=DB.rawQuery("SELECT * FROM Transactiondetails ORDER BY date DESC",null);
-        if(cursor != null && cursor.moveToFirst() && limit>0 ){
+        if(cursor != null && cursor.moveToFirst()  ){
             do {
                 String acc_no = cursor.getString(cursor.getColumnIndex("account_no"));
                 String date = cursor.getString(cursor.getColumnIndex("date"));
                 String expensetype = cursor.getString(cursor.getColumnIndex("expensetype"));
                 double amount = Double.parseDouble(cursor.getString(cursor.getColumnIndex("amount")));
-                Date date1=new SimpleDateFormat("dd-MM-yyyy").parse(date);
+                Date date1=new Date(Long.valueOf(date));
                 ExpenseType expenseType;
                 expenseType = ExpenseType.valueOf(expensetype);
                 Transaction transaction= new Transaction(date1,acc_no,expenseType,amount);
                 transactionList.add(transaction);
                 limit -= 1;
 
-            }while(cursor.moveToNext());
+            }while(cursor.moveToNext() && limit>0);
             cursor.close();
 
         }

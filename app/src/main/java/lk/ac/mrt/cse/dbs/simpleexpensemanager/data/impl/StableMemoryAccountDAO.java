@@ -118,8 +118,7 @@ public class StableMemoryAccountDAO implements AccountDAO{
                 contentValues.put("balance",amount+values);
             }
             cursor.close();
-
-            DB.insert("Userdetails",null,contentValues);
+            DB.update("Userdetails",contentValues,"account_no =?",new String[]{accountNo});
         }
 
 
